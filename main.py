@@ -2,6 +2,7 @@ from urllib.request import urlopen
 from bs4 import BeautifulSoup
 from telegram.ext import Updater, CommandHandler
 from telegram.error import NetworkError, Unauthorized
+from datetime import datetime
 import logging
 
 
@@ -15,10 +16,32 @@ def get_kkb():
     return currencyStripList
 
 
+def get_halyk():
+    html = urlopen('https://halykbank.kz')
+    bsHtml = BeautifulSoup(html.read(),'lxml')
+    currencyList = bsHtml.find('table', {'class':'rates-1'}).findAll('td')
+    currencyStripList = []
+    for currency in currencyList:
+        currencyStripList.append(currency.get_text().strip())
+    return (currencyStripList)
+
+
 def kkb(bot, update):
     a = get_kkb()
-    bot.sendMessage(update.message.chat_id, text='Kazkom'+'\n' + 'Валюта ' + ' '.join(a[2:4]))
+    bot.sendMessage(update.message.chat_id, text=datetime.now().strftime("%Y-%m-%d %H:%M:%S\n")+'Kazkom\nВалюта ' + ' '.join(a[2:4]))
     bot.sendMessage(update.message.chat_id, text=' '.join(a[4:7])+'\n' + ' '.join(a[7:10])+'\n' + ' '.join(a[10:]))
+
+def halyk(bot, update):
+    a = get_halyk()
+    bot.sendMessage(update.message.chat_id, text=datetime.now().strftime("%Y-%m-%d %H:%M:%S\n")+'Народный Банк\nВалюта ' + ' '.join(a[1:3]))
+    bot.sendMessage(update.message.chat_id, text=' '.join(a[3:6]) + '\n' + ' '.join(a[6:9]) + '\n' + ' '.join(a[9:]))
+
+def start(bot, update):
+    bot.sendMessage(update.message.chat_id, text='Курсы валют банков Казахстана  Чтобы посмотреть помощь /help')
+
+
+def help(bot, update):
+    bot.sendMessage(update.message.chat_id, text='/help  - эта помощь\n/kkb - Kazkom\n/halyk - Народный Банк')
 
 
 def main():
@@ -30,7 +53,9 @@ def main():
 
     # Add handlers for Telegram messages
     dp.add_handler(CommandHandler("kkb", kkb))
-
+    dp.add_handler(CommandHandler("halyk", halyk))
+    dp.add_handler(CommandHandler('start', start))
+    dp.add_handler(CommandHandler('help', help))
 
     updater.start_polling()
 
