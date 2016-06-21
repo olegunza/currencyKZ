@@ -3,7 +3,6 @@ from bs4 import BeautifulSoup
 from telegram.ext import Updater, CommandHandler
 from telegram.error import NetworkError, Unauthorized
 from datetime import datetime
-import logging
 
 
 def get_kkb():
