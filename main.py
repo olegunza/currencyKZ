@@ -12,7 +12,7 @@ def get_rate(bank, table):
     currency_strip_list = []
     for currency in currency_list:
         currency_strip_list.append(currency.get_text().strip())
-    return currencyStripList
+    return currency_strip_list
 
 
 def kkb(bot, update):
