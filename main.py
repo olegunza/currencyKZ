@@ -5,35 +5,27 @@ from telegram.error import NetworkError, Unauthorized
 from datetime import datetime
 
 
-def get_kkb():
-    html = urlopen('http://kkb.kz')
-    bsHtml = BeautifulSoup(html.read(),'lxml')
-    currencyList = bsHtml.find('table', {'class':'tbl_kurs'}).findAll('td')
-    currencyStripList = []
-    for currency in currencyList:
-        currencyStripList.append(currency.get_text())
+def get_rate(bank, table):
+    html = urlopen(bank)
+    bs_html = BeautifulSoup(html.read(),'lxml')
+    currency_list = bs_html.find('table', {'class': table}).findAll('td')
+    currency_strip_list = []
+    for currency in currency_list:
+        currency_strip_list.append(currency.get_text().strip())
     return currencyStripList
 
 
-def get_halyk():
-    html = urlopen('https://halykbank.kz')
-    bsHtml = BeautifulSoup(html.read(),'lxml')
-    currencyList = bsHtml.find('table', {'class':'rates-1'}).findAll('td')
-    currencyStripList = []
-    for currency in currencyList:
-        currencyStripList.append(currency.get_text().strip())
-    return (currencyStripList)
-
-
 def kkb(bot, update):
-    a = get_kkb()
+    a = get_rate('http://kkb.kz', 'tbl_kurs')
     bot.sendMessage(update.message.chat_id, text=datetime.now().strftime("%Y-%m-%d %H:%M:%S\n")+'Kazkom\nВалюта ' + ' '.join(a[2:4]))
     bot.sendMessage(update.message.chat_id, text=' '.join(a[4:7])+'\n' + ' '.join(a[7:10])+'\n' + ' '.join(a[10:]))
 
+
 def halyk(bot, update):
-    a = get_halyk()
+    a = get_rate('https://halykbank.kz', 'rates-1')
     bot.sendMessage(update.message.chat_id, text=datetime.now().strftime("%Y-%m-%d %H:%M:%S\n")+'Народный Банк\nВалюта ' + ' '.join(a[1:3]))
     bot.sendMessage(update.message.chat_id, text=' '.join(a[3:6]) + '\n' + ' '.join(a[6:9]) + '\n' + ' '.join(a[9:]))
+
 
 def start(bot, update):
     bot.sendMessage(update.message.chat_id, text='Курсы валют банков Казахстана  Чтобы посмотреть помощь /help')
